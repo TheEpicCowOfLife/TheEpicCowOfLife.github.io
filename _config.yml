@@ -11,9 +11,9 @@ description: > # this means to ignore newlines until "baseurl:"
 twitter_username: haha lol
 github_username:  your-github-handle
 
-show_excerpts: true # set to false to remove excerpts on the homepage
+show_excerpts: false # set to false to remove excerpts on the homepage
 
 # Use the following plug-ins
-plugins:
-        - jekyll-sitemap # Create a sitemap
-        - jekyll-feed # Create an Atom feed
+#plugins:
+#        - jekyll-sitemap # Create a sitemap
+#        - jekyll-feed # Create an Atom feed
