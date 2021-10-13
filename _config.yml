@@ -14,4 +14,22 @@ show_excerpts: false # set to false to remove excerpts on the homepage
 # Use the following plug-ins
 #plugins:
 #        - jekyll-sitemap # Create a sitemap
-#        - jekyll-feed # Create an Atom feed
+# #        - jekyll-feed # Create an Atom feed
+# title: Oliver Williams - Portfolio
+# url: "http://yourdomain.com"
+markdown: kramdown 
+# permalink: /:title
+
+defaults: 
+  - 
+    scope: 
+      path: "" 
+      type: "posts" 
+    values: 
+      layout: "post"
+  -
+    scope:
+      path: ""
+      type: "pages" 
+    values:
+      layout: "page"
