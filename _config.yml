@@ -3,8 +3,7 @@ theme: jekyll-theme-midnight
 title: TheEpicCowOfLife's Blog
 author: Quang Ong
 email: TheEpicCowOfLife@gmail.com
-description: > # this means to ignore newlines until "baseurl:"
-Imagine reviving this blog, couldn't be me.
+description: Imagine reviving this blog, couldn't be me.
 # social links
 twitter_username: haha lol
 github_username:  your-github-handle
