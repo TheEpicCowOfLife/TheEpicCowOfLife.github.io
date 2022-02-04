@@ -10,6 +10,7 @@ github_username:  your-github-handle
 
 show_excerpts: false # set to false to remove excerpts on the homepage
 
+github: [metadata]
 # Use the following plug-ins
 #plugins:
 #        - jekyll-sitemap # Create a sitemap
