@@ -9,7 +9,7 @@ twitter_username: haha lol
 github_username:  your-github-handle
 
 show_excerpts: false # set to false to remove excerpts on the homepage
-
+repository: TheEpicCowOfLife/TheEpicCowOfLife.github.io
 github: [metadata]
 # Use the following plug-ins
 #plugins:
