@@ -6,6 +6,10 @@
 
 {% seo %}
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    <style> body {
+        background-image: linear-gradient(#252525, #252525);
+    }</style>
+  
     <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
     <script src="{{ '/assets/js/respond.js' | relative_url }}"></script>
     <script type="text/x-mathjax-config">
@@ -49,7 +53,18 @@
         </div>
 
         {{ content }}
-
+        <script>
+          // Code to dynamically resize videos. I actually wrote this myself. I am proud of not having to leech off stack overflow for once 
+          function onResize() {
+              for (let x of document.getElementsByClassName('autoresize')){
+                  let ar = x.width/x.height;
+                  x.width = x.parentElement.clientWidth;
+                  x.height = x.width / ar;
+              }
+          }
+          window.addEventListener('resize', onResize);
+          onResize();
+        </script>
       </section>
 
     </div>

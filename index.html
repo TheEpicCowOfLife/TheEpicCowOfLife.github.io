@@ -2,16 +2,9 @@
 title: Blog
 layout: default
 ---
-
 <h1>
-Welcome to my blog
+  See my latest posts
 </h1>
-
-<p>
-I'm glad you are here. I plan to talk about competitive programming and the sorts, lol
-</p>
-
-
 
 <div class="posts">
   {% for post in site.posts %}
@@ -25,6 +18,8 @@ I'm glad you are here. I plan to talk about competitive programming and the sort
 
       <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
     </article>
+    <br>
+    <hr>
   {% endfor %}
 </div>
 
