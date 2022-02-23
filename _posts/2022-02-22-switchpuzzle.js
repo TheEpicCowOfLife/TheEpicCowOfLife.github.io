@@ -20,11 +20,17 @@ var inputBinary = [];
 var signalsSent = 0;
 var u = 10;
 var n = 4;
+var ni = 1;
+var nlist = [2,4,8,16];
 
 var mappingButton;
 var sendButton;
+var restartButton;
+var nButton;
 var mappingMode = true;
 var endMode = false;
+
+var messageText = "testing testing one two three";
 
 /**
  * detect IEEdge
@@ -124,7 +130,7 @@ class Button{
         strokeWeight(0);
         fill(0);
         textAlign(CENTER, CENTER);
-        textSize(this.size/2)
+        textSize(this.size * 0.3)
         text(this.label,this.x,this.y);
     }
 
@@ -148,7 +154,7 @@ class Switch{
     render(){
         strokeWeight(0.5 * u);
         stroke(150);
-        if (!mappingMode && this.mouseHover()){
+        if (!mappingMode && !endMode && this.mouseHover()){
             if (this.on){
                 fill(200);
             }
@@ -169,7 +175,8 @@ class Switch{
     }
 
     onClick(){
-        if (!mappingMode){
+        if (!mappingMode && !endMode){
+            messageText = "";
             this.on = !this.on;
             for (let i = 0; i < n; i++){
                 lights[i].on = false;
@@ -199,7 +206,7 @@ class Connection{
         }
         strokeWeight(0.5 * u);
         stroke(150);
-        if (this.mouseHover()){
+        if (!endMode && this.mouseHover()){
             if (this.on){
                 fill(200);
             }
@@ -219,13 +226,15 @@ class Connection{
     }
 
     onClick(){
-        if (!mappingMode){
+        if (!mappingMode || endMode){
             return;
         }
+        messageText = "";
         this.on = !this.on;
         let cnt = [0,0];
         let idx = [0,0];
         let invalid = false;
+
         for (let i = 0; i < n && !invalid; i++){
             for (let j = 0; j < 2; j++){
                 if (connections[j][i].on){
@@ -239,7 +248,6 @@ class Connection{
                 }    
             }
         }
-        print(cnt);
         function clearConnections(){
             for (let i = 0; i < n; i++){
                 for (let j = 0; j < 2; j++){
@@ -249,7 +257,7 @@ class Connection{
         }
         if (invalid){
             clearConnections();        
-            // Should display an error message or something.    
+            messageText = "Please connect a switch to a light";
         }
         else if (cnt[0] == 1 && cnt[1] == 1){
             if (inputMapping[idx[0]] == idx[1]){
@@ -273,14 +281,17 @@ function windowResized() {
 
 function toggleMappingModeButton(){
     this.clickTimer = 100;
-    self.mappingMode = !self.mappingMode;
-    if (self.mappingMode){
+    mappingMode = !mappingMode;
+    if (mappingMode){
         // for (let i = 0; i < n; i++){
         //     lights[i].on = false;
         // }
-        sendButton.label = "Check\nMapping";
+        this.label = "Input\nSignals";
+        sendButton.label = "Submit\nMapping";
     }
     else{
+        
+        this.label = "Draw\nConnections";
         sendButton.label = "Send\nSignals";
     }
 }
@@ -297,12 +308,13 @@ function sendSignalsButton(){
         for (let i = 0; i < n; i++){
             if (inputMapping[i] == -1){
                 // Check that all switches are connected
-                print("Invalid permutation");
+                // print("Invalid permutation");
+                messageText = "Invalid connections. All switches must be connected.";
                 return;
             }
             if (seen[inputMapping[i]]){
                 // Check that all lights are connected
-                print("Invalid permutation");
+                messageText = "Invalid connections. All lights must be connected.";
                 return;
             }
             seen[inputMapping[i]] = true;
@@ -313,9 +325,9 @@ function sendSignalsButton(){
             if (inputMapping[i] != mapping[i]){
                 // Nope rip
                 print("Fail :(");
+                messageText = "The connections you inputted are incorrect. The original connections are displayed."
+                endMode = true;
 
-                // Todo: display the permutation.
-                restart();
                 return;
             }
         }
@@ -325,19 +337,20 @@ function sendSignalsButton(){
         for (let i = 0; i < n; i++){
             my_str = String(inputBinary[i]);
             if (my_str in dict){
-                // Sadge, looks like we repeated a thing
+                // Adaptive stuff :)
                 tmp = mapping[dict[my_str]];
                 mapping[dict[my_str]] = i;
                 mapping[i] = tmp;
                 // Now display mapping, should be a valid mapping that is unequal to the submitting mapping.
-                print("Fail (death by adaptive grader)");                               
-                restart();
+                messageText = "The connections you inputted are incorrect. The original connections are displayed."
+                endMode = true;
+
                 return;
             }
             dict[my_str] = i;
         }
-        print("Success!");
-        restart();
+        messageText = "The connections you inputted are correct! Congratulations!"
+        endMode = true;
         
     }
     else{
@@ -369,11 +382,15 @@ function restart(){
     inputMapping = [];
     inputBinary = [];
     signalsSent = 0;
+    endMode = false;
+    mappingMode = false;
+    messageText = "";
 
+    n = nlist[ni];
     for(let i = 0; i < n; i++){
         inputMapping[i] = -1;
         if (detectIE()){
-            // You get some possibly glitchy nonsense.
+            // You get some possibly glitchy nonsense with the adaptive grader.
             inputBinary.push(0);
         }
         else{
@@ -382,14 +399,13 @@ function restart(){
         }
     }
     // So we can't seed the RNG in javascript. Luckily, I have my own hacky solution
-    // letMeSeedRNG = Date.now() % 1007;
-    // for (let i = 0; i < letMeSeedRNG; i++){
-    //     if (Math.random() > 1){
-    //         print("This should make sure that Math.random() actually gets called");
-    //     }
-    // }
+    letMeSeedRNG = Date.now() % 1007;
+    for (let i = 0; i < letMeSeedRNG; i++){
+        if (Math.random() > 1){
+            print("This should make sure that Math.random() actually gets called");
+        }
+    }
     mapping = genPermutation(n);
-    print(mapping);
     for(let i = 0; i < n; i++){
         let my_switch = new Switch(25 * u, (15 * i + 10) * u, 5 * u);
         switches.push(my_switch);
@@ -406,14 +422,34 @@ function restart(){
         buttons.push(connection2);
         connections[1].push(connection2);
     }
-    mappingButton = new Button(40*u, (15 * n + 20) * u, 10 * u, label = "Input\nMapping", onClick = toggleMappingModeButton);
-    buttons.push(mappingButton);
 
-    sendButton = new Button(15*u, (15 * n + 20) * u, 10 * u, label = "Send\nSignals", onClick = sendSignalsButton);
+    sendButton = new Button(12.5*u, (15 * n + 20) * u, 10 * u, label = "Send\nSignals", onClick = sendSignalsButton);
     buttons.push(sendButton);
 
+
+    mappingButton = new Button(37.5*u, (15 * n + 20) * u, 10 * u, label = "Draw\nConnections", onClick = toggleMappingModeButton);
+    buttons.push(mappingButton);
+
+    // WHY DOES THIS WORK???? JAVASCRIPT IS SO CURSED.
+    restartButton = new Button(62.5*u, (15 * n + 20) * u, 10 * u, label = "Restart", onClick = restartButtonFunc);
+    buttons.push(restartButton);
+
+    nButton = new Button(87.5*u, (15 * n + 20) * u, 10 * u, label = "n = " + String(nlist[ni]), onClick = changeNButton);
+    buttons.push(nButton);
 }
 
+
+function restartButtonFunc(){
+    this.clickTimer = 100;
+    // LIKE LOOK AT THIS? ISN'T THIS MUTUAL RECURSION??? 
+    restart();
+}
+
+function changeNButton(){
+    this.clickTimer = 100
+    ni = (ni + 1) % nlist.length;
+    this.label = "n = " + String(nlist[ni]);
+}
 
 function setup() {
     let canvasDiv = document.getElementById('sketch-holder');
@@ -431,8 +467,39 @@ function setup() {
 
 function mouseClicked(){
     for(let i = 0; i < buttons.length; i++){
+        if (endMode && (buttons[i] ==sendButton || buttons[i] == mappingButton)){
+            continue;
+        }
         if (buttons[i].mouseHover()){
             buttons[i].onClick()
+        }
+    }
+}
+
+function drawMapping(mapping){
+    for(let i = 0; i < n; i++){
+        if (mapping[i] != -1){
+            // BEHOLD. CRAZY MATH TIME.
+            // draws the wiring, in a way that doesn't collide with anything.
+            stroke(150);
+            strokeWeight(2.5 * u / n)
+
+            let x1 = 32.5 * u;
+            let y1 = ((10 + 15 * i) + (i - (n-1)/2)/n * 5) * u;
+            
+            let x2 = (50 +  (i - (n-1)/2)/n * 10) * u;
+            let y2 = y1;
+
+            let x3 = x2;
+            let y3 = ((10 + 15 * mapping[i]) + (i - (n-1)/2)/n * 5) * u;
+
+            let x4 = 67.5 * u;
+            let y4 = y3;
+
+
+            line(x1,y1,x2,y2);
+            line(x2,y2,x3,y3);
+            line(x3,y3,x4,y4);
         }
     }
 }
@@ -443,10 +510,18 @@ function draw() {
         lights[i].render();
     }
     for(let i = 0; i < buttons.length; i++){
+        if (endMode && (buttons[i] ==sendButton || buttons[i] == mappingButton)){
+            continue;
+        }
+
         buttons[i].render();
     }
-    
-    if (!mappingMode){
+    if (endMode){
+        restartButton.x = 37.5 * u;
+        nButton.x = 62.5 * u;
+        drawMapping(mapping);
+    }
+    else if (!mappingMode){
         
         
         for(let i = 0; i < n; i++){
@@ -466,39 +541,28 @@ function draw() {
         fill(0);
         rect(40 * u, 5 * u, 20 * u, (15 * n - 5) * u)
 
-        stroke(0);
         strokeWeight(0);
         fill(255);
         textAlign(CENTER, CENTER);
         textSize(10 * u);
-        text("???\n???\n???\n",50 * u, 7.5 * n * u + 10 * u);
-    }
-    else{
-        for(let i = 0; i < n; i++){
-            if (inputMapping[i] != -1){
-                // BEHOLD. CRAZY MATH TIME.
-                // draws the wiring, in a way that doesn't collide with anything.
-                stroke(150);
-                strokeWeight(2.5 * u / n)
+        if (n == 2){
+            text("???\n???\n",50 * u, 7.5 * n * u + 10 * u);
+        }
+        else{
+            text("???\n???\n???\n",50 * u, 7.5 * n * u + 10 * u);
 
-                let x1 = 32.5 * u;
-                let y1 = ((10 + 15 * i) + (i - (n-1)/2)/n * 5) * u;
-                
-                let x2 = (50 +  (i - (n-1)/2)/n * 10) * u;
-                let y2 = y1;
-
-                let x3 = x2;
-                let y3 = ((10 + 15 * inputMapping[i]) + (i - (n-1)/2)/n * 5) * u;
-
-                let x4 = 67.5 * u;
-                let y4 = y3;
-
-
-                line(x1,y1,x2,y2);
-                line(x2,y2,x3,y3);
-                line(x3,y3,x4,y4);
-            }
         }
     }
+    else{
+        drawMapping(inputMapping);        
+    }
 
+    strokeWeight(0);
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(3 * u);
+    text(messageText,10*u,(15 * n ) * u, 80 * u, 10 * u);
+    text("Switches", 25 * u, 2.5 * u);
+    text("Lights", 75 * u, 2.5 * u);
+    text("Signals sent: " + String(signalsSent), 50 * u, 2.5 * u);
 }
