@@ -13,6 +13,6 @@ Can you figure out the general strategy for any $$n$$ that does it in as few ope
 <script src="/assets/p5.min.js"></script>
 
 <div id = "sketch-holder">
-<script src="/2022/02/22/switchpuzzle.js"></script>
+<script src="/assets/switchpuzzle.js"></script>
 
 </div>
